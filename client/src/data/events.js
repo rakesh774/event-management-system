@@ -1,0 +1,80 @@
+export const events = [
+  {
+    id: "evt-001",
+    title: "Global Tech Summit 2026",
+    category: "Technology",
+    location: "San Francisco, CA",
+    date: "2026-10-15T09:00:00Z",
+    price: 299,
+    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+    description: "The premier conference for technology professionals. Join over 5,000 attendees for 3 days of inspiring keynotes, technical workshops, and unparalleled networking opportunities. Discover the latest trends in AI, Web3, and cloud architecture.",
+    availableSeats: 150,
+    totalSeats: 5000,
+    featured: true
+  },
+  {
+    id: "evt-002",
+    title: "Symphony Under the Stars",
+    category: "Music",
+    location: "New York, NY",
+    date: "2026-07-22T19:30:00Z",
+    price: 85,
+    image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+    description: "Experience a magical evening as the Philharmonic Orchestra performs classic and contemporary pieces outdoors in Central Park. Bring a blanket, enjoy gourmet food trucks, and lose yourself in the music.",
+    availableSeats: 420,
+    totalSeats: 2000,
+    featured: true
+  },
+  {
+    id: "evt-003",
+    title: "Startup Pitch Competition",
+    category: "Business",
+    location: "Austin, TX",
+    date: "2026-08-10T13:00:00Z",
+    price: 0,
+    image: "https://images.unsplash.com/photo-1556761175-5973dc0f32d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1632&q=80",
+    description: "Watch the most promising early-stage startups pitch their ideas to a panel of top-tier venture capitalists. Network with founders, investors, and industry leaders in the heart of Texas.",
+    availableSeats: 45,
+    totalSeats: 300,
+    featured: true
+  },
+  {
+    id: "evt-004",
+    title: "Modern Art Exhibition",
+    category: "Arts & Culture",
+    location: "Online",
+    date: "2026-06-05T10:00:00Z",
+    price: 15,
+    image: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=880&q=80",
+    description: "A breathtaking virtual tour of contemporary art pieces from emerging global artists. Participate in live Q&A sessions with the creators and purchase exclusive digital pieces.",
+    availableSeats: 1000,
+    totalSeats: 5000,
+    featured: false
+  },
+  {
+    id: "evt-005",
+    title: "DevRelCon 2026",
+    category: "Technology",
+    location: "London, UK",
+    date: "2026-11-05T08:30:00Z",
+    price: 199,
+    image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+    description: "The definitive conference for Developer Relations, Community Management, and Developer Experience professionals. Learn how to build thriving developer communities.",
+    availableSeats: 80,
+    totalSeats: 800,
+    featured: false
+  },
+  {
+    id: "evt-006",
+    title: "Global Food Festival",
+    category: "Food & Drink",
+    location: "Chicago, IL",
+    date: "2026-09-12T11:00:00Z",
+    price: 45,
+    image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1287&q=80",
+    description: "Taste dishes from over 50 countries, attend masterclasses by Michelin-starred chefs, and enjoy live cultural performances all weekend long.",
+    availableSeats: 1500,
+    totalSeats: 5000,
+    featured: false
+  }
+];
