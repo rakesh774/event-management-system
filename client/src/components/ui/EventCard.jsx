@@ -18,6 +18,7 @@ const EventCard = ({ event }) => {
         <img 
           src={event.image} 
           alt={event.title} 
+          loading="lazy"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -57,7 +58,7 @@ const EventCard = ({ event }) => {
           </div>
         </div>
         
-        <Link to={`/events/${event.id}`} className="mt-auto block">
+        <Link to={`/events/${event._id || event.id}`} className="mt-auto block">
           <Button variant="outline" className="w-full">View Details</Button>
         </Link>
       </div>

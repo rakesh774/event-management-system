@@ -1,23 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Users, Share2, Clock, Check, ArrowLeft } from 'lucide-react';
-import { events } from '../data/events';
+import toast from 'react-hot-toast';
+import { fetchEventById, createBooking } from '../api';
+import { AuthContext } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 import GlassCard from '../components/ui/GlassCard';
 
 const EventDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  
   const [event, setEvent] = useState(null);
   const [timeLeft, setTimeLeft] = useState({});
   const [isRegistered, setIsRegistered] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Find the event in dummy data
-    const foundEvent = events.find(e => e.id === id);
-    if (foundEvent) {
-      setEvent(foundEvent);
-    }
+    const getEvent = async () => {
+      try {
+        const { data } = await fetchEventById(id);
+        setEvent(data);
+      } catch (err) {
+        console.error(err);
+        setError("Event not found");
+      }
+    };
+    getEvent();
+
+    // Micro-polling every 15 seconds
+    const intervalId = setInterval(getEvent, 15000);
+    return () => clearInterval(intervalId);
   }, [id]);
 
   useEffect(() => {
@@ -49,9 +65,23 @@ const EventDetails = () => {
     return () => clearInterval(timer);
   }, [event]);
 
+  if (error) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <div className="text-red-500 mb-4">
+          <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{error}</h2>
+        <Link to="/events">
+          <Button variant="primary">Back to Events</Button>
+        </Link>
+      </div>
+    );
+  }
+
   if (!event) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <div className="animate-pulse flex flex-col items-center">
           <div className="h-8 w-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4"></div>
           <p className="text-slate-500">Loading event details...</p>
@@ -60,9 +90,26 @@ const EventDetails = () => {
     );
   }
 
-  const handleRegister = () => {
-    setIsRegistered(true);
-    // In a real app, this would make an API call
+  const handleRegister = async () => {
+    if (!user) {
+      toast.error('Please log in to register for an event');
+      navigate('/login');
+      return;
+    }
+
+    setIsBooking(true);
+    try {
+      await createBooking({ eventId: event._id, ticketQuantity: 1 });
+      setIsRegistered(true);
+      toast.success('Successfully registered! View your ticket in My Bookings.');
+      
+      // Optioanlly update local seats
+      setEvent(prev => ({ ...prev, availableSeats: prev.availableSeats - 1 }));
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to register');
+    } finally {
+      setIsBooking(false);
+    }
   };
 
   const eventDate = new Date(event.date);
@@ -194,19 +241,34 @@ const EventDetails = () => {
               )}
 
               {/* Seats Progress */}
-              <div className="mb-8">
+              <div className="mb-8 bg-slate-50 dark:bg-slate-800/20 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="font-medium text-slate-700 dark:text-slate-300">Availability</span>
-                  <span className="text-slate-500">{event.availableSeats} seats left</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-350">Tickets Availability</span>
+                  <span className={`font-bold ${event.availableSeats <= 10 ? 'text-rose-500 animate-pulse' : 'text-slate-500'}`}>
+                    {event.availableSeats} seats left
+                  </span>
                 </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden shadow-inner">
                   <div 
-                    className={`h-2.5 rounded-full ${percentageSold > 90 ? 'bg-red-500' : 'bg-primary-500'}`} 
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      percentageSold >= 90 
+                        ? 'bg-gradient-to-r from-rose-500 to-red-600 animate-pulse shadow-md shadow-red-500/20' 
+                        : percentageSold >= 50 
+                          ? 'bg-amber-500' 
+                          : 'bg-emerald-500'
+                    }`} 
                     style={{ width: `${percentageSold}%` }}
                   ></div>
                 </div>
-                {percentageSold > 90 && (
-                  <p className="text-red-500 text-xs mt-2 font-medium">Selling out fast!</p>
+                {percentageSold >= 90 && event.availableSeats > 0 && (
+                  <p className="text-rose-500 text-xs mt-2 font-bold flex items-center gap-1">
+                    ⚠️ Selling out fast! Only a few spots left.
+                  </p>
+                )}
+                {event.availableSeats === 0 && (
+                  <p className="text-slate-500 text-xs mt-2 font-semibold">
+                    This event is fully booked.
+                  </p>
                 )}
               </div>
 
@@ -220,9 +282,14 @@ const EventDetails = () => {
                   variant="primary" 
                   className="w-full py-4 text-lg"
                   onClick={handleRegister}
-                  disabled={event.availableSeats === 0 || timeLeft.passed}
+                  disabled={event.availableSeats === 0 || timeLeft.passed || isBooking}
                 >
-                  {timeLeft.passed ? 'Event Ended' : event.availableSeats === 0 ? 'Sold Out' : 'Register Now'}
+                  {isBooking ? (
+                    <span className="flex items-center gap-2 justify-center">
+                      <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Processing...
+                    </span>
+                  ) : timeLeft.passed ? 'Event Ended' : event.availableSeats === 0 ? 'Sold Out' : 'Register Now'}
                 </Button>
               )}
               
